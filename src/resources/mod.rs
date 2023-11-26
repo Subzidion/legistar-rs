@@ -1,3 +1,5 @@
 pub mod bodytypes;
-pub mod events;
+pub mod mattertypes;
 pub mod votetypes;
+
+pub mod events;
