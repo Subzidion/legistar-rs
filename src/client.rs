@@ -1,4 +1,4 @@
-use crate::resources::{event_deserialize, Event};
+use crate::resources::events::{self, Event};
 
 pub struct LegistarClient {
     events_url: String,
@@ -14,6 +14,6 @@ impl LegistarClient {
 
     pub async fn get_events(&self) -> Result<Vec<Event>, Box<dyn std::error::Error>> {
         let response = reqwest::get(&self.events_url).await?.text().await?;
-        Ok(event_deserialize::<Vec<Event>>(&response).await?)
+        Ok(events::deserialize::<Vec<Event>>(&response).await?)
     }
 }
