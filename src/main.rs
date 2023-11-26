@@ -6,7 +6,12 @@ use client::LegistarClient;
 #[tokio::main]
 async fn main() {
     let client = LegistarClient::new(String::from("seattle"));
-    let events = client.get_events().await.unwrap();
+    let response = client.get_events().await;
+    let events = match response {
+        Ok(events) => events,
+        Err(error) => panic!("Error: {:?}", error),
+    };
+
     for event in events.iter() {
         println!(
             "Event {:#?} hosted by {:#?} at {:#?}",
