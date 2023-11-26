@@ -85,3 +85,23 @@ fn merge_date_time(j: &mut Value) {
         map.remove("EventTime");
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use time::format_description::well_known::Iso8601;
+    use time::PrimitiveDateTime;
+
+    use crate::resources::events::{deserialize, Event};
+
+    #[tokio::test]
+    async fn validate_date_time_replacement() {
+        let test_string = "[{\"EventId\":5611,\"EventGuid\":\"52479834-25E0-4868-9336-C3676E97A9AC\",\"EventLastModifiedUtc\":\"2023-11-10T20:19:39.15\",\"EventRowVersion\":\"AAAAAAD80A4=\",\"EventBodyId\":198,\"EventBodyName\":\"Select Budget Committee\",\"EventDate\":\"2023-11-13T00:00:00\",\"EventTime\":\"10:00 AM\",\"EventVideoStatus\":\"Public\",\"EventAgendaStatusId\":10,\"EventAgendaStatusName\":\"Final\",\"EventMinutesStatusId\":10,\"EventMinutesStatusName\":\"Final\",\"EventLocation\":\"Council Chamber, City Hall, 600 4th Avenue, Seattle, WA 98104\",\"EventAgendaFile\":\"https://legistar2.granicus.com/seattle/meetings/2023/11/5611_A_Select_Budget_Committee_23-11-13_Committee_Agenda.pdf\",\"EventMinutesFile\":null,\"EventAgendaLastPublishedUTC\":\"2023-11-10T20:02:23.843\",\"EventMinutesLastPublishedUTC\":null,\"EventComment\":\"Session I at 10 a.m. & Session II at 2 p.m.\",\"EventVideoPath\":null,\"EventMedia\":\"https://seattlechannel.org/BudgetCommittee/?videoid=x151681\",\"EventInSiteURL\":\"https://seattle.legistar.com/MeetingDetail.aspx?LEGID=5611&GID=393&G=FFE3B678-CEF6-4197-84AC-5204EA4CFC0C\",\"EventItems\":[]}]";
+        let result: Vec<Event> = deserialize(test_string).await.unwrap();
+        assert_eq!(
+            result[0].date_time,
+            PrimitiveDateTime::parse("2023-11-13T10:00:00", &Iso8601::DATE_TIME).unwrap()
+        );
+        assert!(!result[0]._extra.contains_key("EventDate"));
+        assert!(!result[0]._extra.contains_key("EventTime"));
+    }
+}
