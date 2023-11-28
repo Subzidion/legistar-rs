@@ -1,9 +1,9 @@
 use time::Date;
 
-use crate::resources::bodytypes::{self, BodyType};
 use crate::resources::events;
-use crate::resources::mattertypes::{self, MatterType};
-use crate::resources::votetypes::{self, VoteType};
+use crate::resources::types::bodytype::{self, BodyType};
+use crate::resources::types::mattertype::{self, MatterType};
+use crate::resources::types::votetype::{self, VoteType};
 
 use crate::resources::events::event::Event;
 
@@ -47,18 +47,18 @@ impl LegistarClient {
     pub async fn get_body_types(&self) -> Result<Vec<BodyType>, Box<dyn std::error::Error>> {
         let url = reqwest::Url::parse(&self.body_types_url)?;
         let response = reqwest::get(url).await?.text().await?;
-        Ok(bodytypes::deserialize::<Vec<BodyType>>(&response).await?)
+        Ok(bodytype::deserialize::<Vec<BodyType>>(&response).await?)
     }
 
     pub async fn get_vote_types(&self) -> Result<Vec<VoteType>, Box<dyn std::error::Error>> {
         let url = reqwest::Url::parse(&self.body_types_url)?;
         let response = reqwest::get(url).await?.text().await?;
-        Ok(votetypes::deserialize::<Vec<VoteType>>(&response).await?)
+        Ok(votetype::deserialize::<Vec<VoteType>>(&response).await?)
     }
 
     pub async fn get_matter_types(&self) -> Result<Vec<MatterType>, Box<dyn std::error::Error>> {
         let url = reqwest::Url::parse(&self.body_types_url)?;
         let response = reqwest::get(url).await?.text().await?;
-        Ok(mattertypes::deserialize::<Vec<MatterType>>(&response).await?)
+        Ok(mattertype::deserialize::<Vec<MatterType>>(&response).await?)
     }
 }
