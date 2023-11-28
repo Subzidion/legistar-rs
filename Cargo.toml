@@ -1,5 +1,5 @@
 [package]
-name = "legistar-rs"
+name = "legistar"
 version = "0.1.0"
 edition = "2021"
 
