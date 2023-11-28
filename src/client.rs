@@ -1,10 +1,12 @@
 use time::Date;
 
 use crate::resources::bodytypes::{self, BodyType};
+use crate::resources::events;
 use crate::resources::mattertypes::{self, MatterType};
 use crate::resources::votetypes::{self, VoteType};
 
-use crate::resources::events::{self, Event};
+use crate::resources::events::event::Event;
+
 pub struct LegistarClient {
     events_url: String,
     body_types_url: String,
@@ -39,7 +41,7 @@ impl LegistarClient {
             None => reqwest::Url::parse(&self.events_url)?,
         };
         let response = reqwest::get(url).await?.text().await?;
-        Ok(events::deserialize::<Vec<Event>>(&response).await?)
+        Ok(events::event::deserialize::<Vec<Event>>(&response).await?)
     }
 
     pub async fn get_body_types(&self) -> Result<Vec<BodyType>, Box<dyn std::error::Error>> {
