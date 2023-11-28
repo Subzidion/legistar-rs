@@ -4,7 +4,7 @@ use serde::{de::DeserializeOwned, Deserialize};
 use serde_json::Value;
 use time::format_description::well_known::Iso8601;
 use time::macros::format_description;
-use time::{PrimitiveDateTime, Time};
+use time::{Date, PrimitiveDateTime, Time};
 
 use super::event_item::{get_event_items_json, EventItem};
 
@@ -50,7 +50,32 @@ pub struct Event {
     pub _extra: HashMap<String, Value>,
 }
 
-pub async fn deserialize<T>(json: &str) -> Result<T, serde_json::Error>
+pub async fn get_events(
+    client: &str,
+    begin: Option<Date>,
+    end: Option<Date>,
+) -> Result<Vec<Event>, Box<dyn std::error::Error>> {
+    let params = match (begin, end) {
+        (Some(begin), Some(end)) => Some([(
+            "$filter",
+            format!("EventDate ge datetime'{begin}' and EventDate lt datetime'{end}'"),
+        )]),
+        (Some(begin), _) => Some([("$filter", format!("EventDate ge datetime'{begin}'"))]),
+        (_, Some(end)) => Some([("$filter", format!("EventDate lt datetime'{end}'"))]),
+        _ => None,
+    };
+    let url = match params {
+        Some(p) => reqwest::Url::parse_with_params(
+            &format!("https://webapi.legistar.com/v1/{client}/events"),
+            &p,
+        )?,
+        None => reqwest::Url::parse(&format!("https://webapi.legistar.com/v1/{client}/events"))?,
+    };
+    let response = reqwest::get(url).await?.text().await?;
+    Ok(deserialize::<Vec<Event>>(&response).await?)
+}
+
+async fn deserialize<T>(json: &str) -> Result<T, serde_json::Error>
 where
     T: DeserializeOwned,
 {

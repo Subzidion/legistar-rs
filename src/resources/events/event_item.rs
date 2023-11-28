@@ -45,6 +45,7 @@ pub(super) async fn get_event_items_json(
         ("Attachments", "1"),
     ];
     let url = reqwest::Url::parse_with_params(
+        // TODO: Determine how to get Client here.
         &format!("https://webapi.legistar.com/v1/seattle/events/{event_id}/EventItems"),
         &params,
     )?;
